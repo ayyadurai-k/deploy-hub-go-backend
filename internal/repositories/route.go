@@ -1,1 +1,10 @@
-package accounts
+package repositories
+
+import "github.com/gin-gonic/gin"
+
+
+func RegisterRoutes(rg *gin.RouterGroup){
+	rg.GET("/")
+	rg.POST("/sync")
+
+}

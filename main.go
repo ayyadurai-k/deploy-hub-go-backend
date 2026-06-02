@@ -2,6 +2,7 @@ package main
 
 import (
 	"deploy-hub/config"
+	"deploy-hub/internal/accounts"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,5 +21,11 @@ func main()  {
 			"health":"ok",
 		})
 	})
+
+	accounts.RegisterRoutes(router.Group("/auth"))
+
+
+
+
 	router.Run() 
 }
