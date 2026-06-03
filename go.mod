@@ -5,6 +5,7 @@ go 1.26.3
 require (
 	github.com/coreos/go-oidc/v3 v3.18.0
 	github.com/fernet/fernet-go v0.0.0-20240119011108-303da6aec611
+	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/joho/godotenv v1.5.1

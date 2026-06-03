@@ -13,16 +13,18 @@ import (
 	"deploy-hub/internal/oauth/service"
 )
 
+const stateCookiePath = "/api/v1/oauth/"
+
 func setStateCookie(c *gin.Context, envelope string) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	secure := os.Getenv("OAUTH_STATE_COOKIE_SECURE") == "true"
-	c.SetCookie("oauth_state", envelope, service.StateTTLSeconds(), "/", "", secure, true)
+	c.SetCookie("oauth_state", envelope, service.StateTTLSeconds(), stateCookiePath, "", secure, true)
 }
 
 func clearStateCookie(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	secure := os.Getenv("OAUTH_STATE_COOKIE_SECURE") == "true"
-	c.SetCookie("oauth_state", "", -1, "/", "", secure, true)
+	c.SetCookie("oauth_state", "", -1, stateCookiePath, "", secure, true)
 }
 
 func spaRedirect(c *gin.Context, query map[string]string) {

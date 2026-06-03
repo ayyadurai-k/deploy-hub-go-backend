@@ -135,16 +135,16 @@ func refreshCookiePath() string {
 	if value := os.Getenv("REFRESH_COOKIE_PATH"); value != "" {
 		return value
 	}
-	return "/"
+	return "/api/v1/auth/"
 }
 
 func refreshCookieSameSite() http.SameSite {
 	switch strings.ToLower(os.Getenv("REFRESH_COOKIE_SAMESITE")) {
-	case "strict":
-		return http.SameSiteStrictMode
+	case "lax":
+		return http.SameSiteLaxMode
 	case "none":
 		return http.SameSiteNoneMode
 	default:
-		return http.SameSiteLaxMode
+		return http.SameSiteStrictMode
 	}
 }
