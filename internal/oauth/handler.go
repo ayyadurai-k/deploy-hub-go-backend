@@ -29,3 +29,33 @@ func startOAuth(c *gin.Context, provider string, buildAuthorizeURL func(string) 
 func GitHubStart(c *gin.Context) { startOAuth(c, "github", service.BuildGitHubAuthorizeURL) }
 
 func GoogleStart(c *gin.Context) { startOAuth(c, "google", service.BuildGoogleAuthorizeURL) }
+
+
+func GithubCallback(c *gin.Context) {
+	code := c.Query("code")
+	echoed := c.Query("state")
+	envelope := "oauth_state"
+
+	_,err := service.VerifyState(echoed,envelope,"github")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid state"})
+		return
+	}
+
+	if code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing code"})
+		return
+	}
+
+	
+
+
+
+	c.JSON(http.StatusOK, gin.H{"message": "GitHub callback received", "code": code})
+
+}
+
+func GoogleCallback(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "Google callback received"})
+}
