@@ -8,7 +8,7 @@ import (
 
 type Repository struct {
 	ID              uint                `json:"id" gorm:"primarykey"`
-	GitHubProfileID uint                `json:"github_profile_id" gorm:"uniqueIndex:unique_repo_per_github_profile;not null"`
+	GitHubProfileID uint                `json:"github_profile_id" gorm:"column:github_profile_id;uniqueIndex:unique_repo_per_github_profile;not null"`
 	GitHubProfile   oauth.GitHubProfile `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 	GitHubRepoID    int64               `json:"github_repo_id" gorm:"column:github_repo_id;uniqueIndex:unique_repo_per_github_profile;not null"`
 	Name            string              `json:"name" gorm:"column:name;not null"`

@@ -7,6 +7,8 @@ import (
 )
 
 
+const CtxUserKey = "currentUser"
+
 type User struct{
 	gorm.Model
 	Email string `json:"email" gorm:"column:email;not null"`
