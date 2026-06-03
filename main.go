@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -48,5 +49,9 @@ func main() {
 	oauth.RegisterRoutes(v1.Group("/oauth"))
 	repositories.RegisterRoutes(v1.Group("/repositories"), requireAuth)
 
-	router.Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	router.Run(":" + port)
 }
