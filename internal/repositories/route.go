@@ -6,5 +6,6 @@ import (
 
 func RegisterRoutes(rg *gin.RouterGroup, requireAuth gin.HandlerFunc) {
 	rg.GET("", requireAuth, List)
+	rg.GET("/", requireAuth, List)
 	rg.POST("/sync", requireAuth, Sync)
 }

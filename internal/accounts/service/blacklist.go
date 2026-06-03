@@ -3,6 +3,8 @@ package service
 import (
 	"time"
 
+	"gorm.io/gorm/clause"
+
 	"deploy-hub/config"
 )
 
@@ -13,8 +15,10 @@ type BlacklistedToken struct {
 	CreatedAt time.Time
 }
 
-func BlacklistJTI(jti string, expiresAt time.Time) error {
-	return config.DB.Create(&BlacklistedToken{JTI: jti, ExpiresAt: expiresAt}).Error
+func BlacklistJTI(jti string, expiresAt time.Time) (bool, error) {
+	result := config.DB.Clauses(clause.OnConflict{DoNothing: true}).
+		Create(&BlacklistedToken{JTI: jti, ExpiresAt: expiresAt})
+	return result.RowsAffected > 0, result.Error
 }
 
 func IsBlacklisted(jti string) bool {

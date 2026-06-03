@@ -14,6 +14,8 @@ type UserResponse struct {
 	DisplayName string    `json:"display_name"`
 	IsActive    bool      `json:"is_active"`
 	DateJoined  time.Time `json:"date_joined"`
+	HasGoogle   bool      `json:"has_google"`
+	HasGithub   bool      `json:"has_github"`
 }
 
 func ToUserResponse(u User) UserResponse {

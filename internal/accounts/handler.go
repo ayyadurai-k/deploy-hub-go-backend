@@ -14,7 +14,10 @@ func currentUser(c *gin.Context) User {
 }
 
 func Me(c *gin.Context) {
-	c.JSON(http.StatusOK, ToUserResponse(currentUser(c)))
+	user := currentUser(c)
+	resp := ToUserResponse(user)
+	resp.HasGoogle, resp.HasGithub = accountsvc.ProviderLinks(user.ID)
+	c.JSON(http.StatusOK, resp)
 }
 
 func Refresh(c *gin.Context) {
@@ -34,9 +37,13 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	// Rotate: blacklist the old token, then mint a fresh pair.
-	if err := accountsvc.BlacklistJTI(claims.ID, claims.ExpiresAt.Time); err != nil {
+	rotated, err := accountsvc.BlacklistJTI(claims.ID, claims.ExpiresAt.Time)
+	if err != nil {
 		httpx.Error(c, http.StatusInternalServerError, "server_error", "could not rotate token")
+		return
+	}
+	if !rotated {
+		httpx.Error(c, http.StatusUnauthorized, "invalid_refresh", "refresh token already used")
 		return
 	}
 
