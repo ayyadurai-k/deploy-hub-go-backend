@@ -1,9 +1,7 @@
 package oauth
 
 import (
-
 	"github.com/gin-gonic/gin"
-
 )
 
 
