@@ -4,6 +4,7 @@ import (
 	"deploy-hub/config"
 	"deploy-hub/internal/accounts"
 	"deploy-hub/internal/oauth"
+	"deploy-hub/internal/repositories"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,7 @@ func main()  {
 
 	accounts.RegisterRoutes(router.Group("/auth"))
 	oauth.RegisterRoutes(router.Group("/oauth"))
+	repositories.RegisterRoutes(router.Group("/repositories"))
 
 	router.Run() 
 }
