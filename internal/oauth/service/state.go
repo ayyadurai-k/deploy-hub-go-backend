@@ -88,6 +88,10 @@ func VerifyState(echoedNonce, signedEnvelope, expectedProvider string) (StatePay
 	return StatePayload{Nonce: claims.Nonce, Provider: claims.Provider}, nil
 }
 
+func StateTTLSeconds() int {
+	return int(stateTTL.Seconds())
+}
+
 func generateNonce() (string, error) {
 	buf := make([]byte, 32)
 	if _, err := rand.Read(buf); err != nil {

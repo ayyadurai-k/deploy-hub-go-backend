@@ -1,48 +1,31 @@
 package oauth
 
 import (
-	"deploy-hub/internal/oauth/service"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+
+	"deploy-hub/internal/oauth/service"
 )
 
-// utils
-
-func setCookie(c *gin.Context, name, value string, maxAge int) {
+func setStateCookie(c *gin.Context, envelope string) {
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(name, value, maxAge, "/", "", true, true)
+	secure := os.Getenv("OAUTH_STATE_COOKIE_SECURE") == "true"
+	c.SetCookie("oauth_state", envelope, service.StateTTLSeconds(), "/", "", secure, true)
 }
 
-
-func GitHubStart(c *gin.Context){
-	provider := "github"
+func startOAuth(c *gin.Context, provider string, buildAuthorizeURL func(string) string) {
 	nonce, envelope, err := service.IssueState(provider)
-
-	if err != nil{
-		c.JSON(500,gin.H{
-			"error":"failed to issue state",
-		})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to issue state"})
 		return
 	}
 
-	authorizeURL := service.BuildGitHubAuthorizeURL(nonce)
-	setCookie(c, "oauth_state", envelope, 600)
-	c.Redirect(http.StatusFound,authorizeURL)
+	setStateCookie(c, envelope)
+	c.Redirect(http.StatusFound, buildAuthorizeURL(nonce))
 }
 
-func GoogleStart(c *gin.Context){
-	provider := "google"
-	nonce, envelope, err := service.IssueState(provider)
+func GitHubStart(c *gin.Context) { startOAuth(c, "github", service.BuildGitHubAuthorizeURL) }
 
-	if err != nil{
-		c.JSON(500,gin.H{
-			"error":"failed to issue state",
-		})
-		return
-	}
-
-	authorizeURL := service.BuildGoogleAuthorizeURL(nonce)
-	setCookie(c, "oauth_state", envelope, 600)
-	c.Redirect(http.StatusFound,authorizeURL)
-}
+func GoogleStart(c *gin.Context) { startOAuth(c, "google", service.BuildGoogleAuthorizeURL) }
