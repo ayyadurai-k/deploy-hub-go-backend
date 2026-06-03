@@ -1,14 +1,14 @@
 package service
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-
-	"deploy-hub/internal/accounts"
 )
 
 type IssuedPair struct {
@@ -22,29 +22,60 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func IssueJWTPair(user accounts.User) (IssuedPair, error) {
-	access, err := signToken(user.ID, "access", accessLifetime())
+func IssueJWTPair(userID uint) (IssuedPair, error) {
+	access, err := signToken(userID, "access", accessLifetime())
 	if err != nil {
 		return IssuedPair{}, err
 	}
-	refresh, err := signToken(user.ID, "refresh", refreshLifetime())
+	refresh, err := signToken(userID, "refresh", refreshLifetime())
 	if err != nil {
 		return IssuedPair{}, err
 	}
 	return IssuedPair{Access: access, Refresh: refresh}, nil
 }
 
+func ParseToken(tokenString string) (*Claims, error) {
+	var claims Claims
+	_, err := jwt.ParseWithClaims(
+		tokenString,
+		&claims,
+		func(token *jwt.Token) (any, error) { return secret(), nil },
+		jwt.WithValidMethods([]string{"HS256"}),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &claims, nil
+}
+
 func signToken(userID uint, tokenType string, lifetime time.Duration) (string, error) {
+	jti, err := newJTI()
+	if err != nil {
+		return "", err
+	}
 	now := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		UserID:    userID,
 		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        jti,
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(lifetime)),
 		},
 	})
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	return token.SignedString(secret())
+}
+
+func newJTI() (string, error) {
+	buf := make([]byte, 16)
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(buf), nil
+}
+
+func secret() []byte {
+	return []byte(os.Getenv("JWT_SECRET"))
 }
 
 func SetRefreshCookie(w http.ResponseWriter, refreshToken string) {
@@ -70,6 +101,10 @@ func ClearRefreshCookie(w http.ResponseWriter) {
 		HttpOnly: true,
 		SameSite: refreshCookieSameSite(),
 	})
+}
+
+func RefreshCookieName() string {
+	return refreshCookieName()
 }
 
 func accessLifetime() time.Duration {

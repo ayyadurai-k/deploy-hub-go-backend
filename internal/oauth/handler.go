@@ -72,7 +72,7 @@ func handleCallback(c *gin.Context, provider string, exchangeAndResolve func(ctx
 		return
 	}
 
-	pair, err := accountsvc.IssueJWTPair(result.User)
+	pair, err := accountsvc.IssueJWTPair(result.User.ID)
 	if err != nil {
 		clearStateCookie(c)
 		spaRedirect(c, map[string]string{"error": "oauth_error", "message": "failed to issue tokens"})
