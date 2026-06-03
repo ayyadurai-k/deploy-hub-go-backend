@@ -1,32 +1,52 @@
 package main
 
 import (
-	"deploy-hub/config"
-	"deploy-hub/internal/accounts"
-	"deploy-hub/internal/oauth"
-	"deploy-hub/internal/repositories"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"deploy-hub/config"
+	"deploy-hub/internal/accounts"
+	accountsvc "deploy-hub/internal/accounts/service"
+	"deploy-hub/internal/middleware"
+	"deploy-hub/internal/oauth"
+	"deploy-hub/internal/repositories"
 )
 
-
-func init(){
+func init() {
 	config.LoadEnvVariables()
 	config.ConnectDB()
+	config.DB.AutoMigrate(
+		&accounts.User{},
+		&oauth.GoogleProfile{},
+		&oauth.GitHubProfile{},
+		&repositories.Repository{},
+		&accountsvc.BlacklistedToken{},
+	)
 }
-func main()  {
+
+func main() {
 	router := gin.Default()
 
-	router.GET("/healthz",func (c *gin.Context)  {
-		c.JSON(http.StatusOK,gin.H{
-			"health":"ok",
-		})
+	v1 := router.Group("/api/v1")
+
+	v1.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+	v1.GET("/readyz", func(c *gin.Context) {
+		sqlDB, err := config.DB.DB()
+		if err != nil || sqlDB.Ping() != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "not_ready"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "ready"})
 	})
 
-	accounts.RegisterRoutes(router.Group("/auth"))
-	oauth.RegisterRoutes(router.Group("/oauth"))
-	repositories.RegisterRoutes(router.Group("/repositories"))
+	requireAuth := middleware.RequireAuth()
 
-	router.Run() 
+	accounts.RegisterRoutes(v1.Group("/auth"), requireAuth)
+	oauth.RegisterRoutes(v1.Group("/oauth"))
+	repositories.RegisterRoutes(v1.Group("/repositories"), requireAuth)
+
+	router.Run()
 }
