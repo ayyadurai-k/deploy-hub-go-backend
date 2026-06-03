@@ -15,3 +15,13 @@ type UserResponse struct {
 	IsActive    bool      `json:"is_active"`
 	DateJoined  time.Time `json:"date_joined"`
 }
+
+func ToUserResponse(u User) UserResponse {
+	return UserResponse{
+		ID:          u.ID,
+		Email:       u.Email,
+		DisplayName: u.DisplayName,
+		IsActive:    u.IsActive,
+		DateJoined:  u.DateJoined,
+	}
+}
