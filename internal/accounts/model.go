@@ -8,7 +8,7 @@ import (
 
 
 type User struct{
-	*gorm.Model
+	gorm.Model
 	Email string `json:"email" gorm:"column:email;not null"`
 	DisplayName string `json:"display_name" gorm:"column:display_name;not null"`
 	IsActive bool `json:"is_active" gorm:"column:is_active;not null"`
