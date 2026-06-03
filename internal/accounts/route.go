@@ -1,10 +1,11 @@
 package accounts
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
-
-func RegisterRoutes(rg *gin.RouterGroup){
-	rg.POST("/me")
-	rg.POST("/refresh")
-	rg.POST("/logout")
+func RegisterRoutes(rg *gin.RouterGroup, requireAuth gin.HandlerFunc) {
+	rg.GET("/me", requireAuth, Me)
+	rg.POST("/refresh", Refresh)
+	rg.POST("/logout", Logout)
 }
