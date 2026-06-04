@@ -13,9 +13,15 @@ func CORSAllowedOrigins() []string {
 
 	origins := make([]string, 0)
 	for o := range strings.SplitSeq(raw, ",") {
-		if trimmed := strings.TrimSpace(o); trimmed != "" {
-			origins = append(origins, trimmed)
+		trimmed := strings.TrimSpace(o)
+		if trimmed == "" {
+			continue
 		}
+		// "*" cannot be combined with AllowCredentials: true — browsers reject it.
+		if trimmed == "*" {
+			continue
+		}
+		origins = append(origins, trimmed)
 	}
 	return origins
 }

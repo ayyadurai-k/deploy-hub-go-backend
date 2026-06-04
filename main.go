@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,13 +31,11 @@ func main() {
 	router := gin.Default()
 	router.SetTrustedProxies(nil)
 
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     config.CORSAllowedOrigins(),
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = config.CORSAllowedOrigins()
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	corsConfig.AllowCredentials = true
+	router.Use(cors.New(corsConfig))
 
 	v1 := router.Group("/api/v1")
 
