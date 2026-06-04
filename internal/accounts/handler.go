@@ -15,8 +15,8 @@ func currentUser(c *gin.Context) User {
 
 func Me(c *gin.Context) {
 	user := currentUser(c)
-	resp := ToUserResponse(user)
-	resp.HasGoogle, resp.HasGithub = accountsvc.ProviderLinks(user.ID)
+	hasGoogle, hasGithub := accountsvc.ProviderLinks(user.ID)
+	resp := ToUserResponse(user, hasGoogle, hasGithub)
 	c.JSON(http.StatusOK, resp)
 }
 

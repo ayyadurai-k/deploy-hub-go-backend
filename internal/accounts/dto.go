@@ -18,12 +18,14 @@ type UserResponse struct {
 	HasGithub   bool      `json:"has_github"`
 }
 
-func ToUserResponse(u User) UserResponse {
+func ToUserResponse(u User, hasGoogle, hasGithub bool) UserResponse {
 	return UserResponse{
 		ID:          u.ID,
 		Email:       u.Email,
 		DisplayName: u.DisplayName,
 		IsActive:    u.IsActive,
 		DateJoined:  u.DateJoined,
+		HasGoogle:   hasGoogle,
+		HasGithub:   hasGithub,
 	}
 }
