@@ -31,10 +31,10 @@ func ConnectDB(){
 		dbTimezone,
 
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn))
 
 	if err != nil {
-		log.Println("DB Connection failed")
+		log.Fatalf("DB Connection failed: %v", err)
 	}
 
 	DB = db
