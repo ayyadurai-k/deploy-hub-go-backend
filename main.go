@@ -29,7 +29,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.SetTrustedProxies(nil)
+	router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = config.CORSAllowedOrigins()
